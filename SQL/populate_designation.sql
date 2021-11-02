@@ -1,0 +1,14 @@
+INSERT INTO hrm_db.Designation (des_name) VALUES ("CIO");
+INSERT INTO hrm_db.Designation (Des_name) VALUES ("CTO");
+INSERT INTO hrm_db.Designation (Des_name) VALUES ("Software Quality Analyst");
+INSERT INTO hrm_db.Designation (Des_name) VALUES ("Software Engineer");
+INSERT INTO hrm_db.Designation (Des_name) VALUES ("Help Desk Specialist");
+INSERT INTO hrm_db.Designation (Des_name) VALUES ("Cloud Operation engineer");
+INSERT INTO hrm_db.Designation (Des_name) VALUES ("Intern");
+INSERT INTO hrm_db.Designation (Des_name) VALUES ("Senior Software Engineer");
+INSERT INTO hrm_db.Designation (Des_name) VALUES ("Financial Analyst");
+INSERT INTO hrm_db.Designation (Des_name) VALUES ("Financial Manager");
+INSERT INTO hrm_db.Designation (Des_name) VALUES ("Senior Software Engineer");
+INSERT INTO hrm_db.Designation (Des_name) VALUES ("HR Manager");
+INSERT INTO hrm_db.Designation (Des_name) VALUES ("HR Analyst");
+INSERT INTO hrm_db.Designation (Des_name) VALUES ("HR Coordinator");
