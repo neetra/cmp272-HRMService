@@ -1,27 +1,45 @@
 from configparser import Error
-from typing import Tuple
+from typing import Dict, Tuple
 import mysql.connector 
 from helper import get_time_from_string;
 from mysqlhelper import  closeMysqlconnection
 from datetime import datetime
 import config
 from user_model import BasicUserProfile
-
+from user_details import UserDetails;
 from werkzeug.security import generate_password_hash, check_password_hash
-from mysql.connector.cursor import MySQLCursorDict, MySQLCursorPrepared
+from mysql.connector.cursor import MySQLCursorDict, MySQLCursorPrepared, MySQLCursor
 
- 
 
 def connect_to_db():
-    hrm_db=mysql.connector.connect(host=config.db_host,user=config.db_username,password=config.db_password,database=config.db_database)#established connection between your database  
+    hrm_db=mysql.connector.connect(host=config.db_host,user=config.db_username,password=config.db_password,database=config.db_database )#established connection between your database  
     return hrm_db
- 
-   
+
+def get_user(email_id)  :  
+    try:                 
+            hrm_db =mysql.connector.connect(host=config.db_host,user=config.db_username,password=config.db_password,database=config.db_database)#established connection between your database   
+            my_cursor =  hrm_db.cursor(dictionary=True )
+         
+            my_cursor.callproc('sp_get_user_details', (email_id,))       
+  
+            results = my_cursor.stored_results()
+            for result in results:
+                r =  result.fetchone()
+            user_d = UserDetails(r)
+            return user_d;                
+    except mysql.connector.Error as err:
+            print (err)  
+            return "Error "      + err.msg
+            
+    finally:
+            closeMysqlconnection(hrm_db, my_cursor)  
+    return None    
+
 def get_sql_version():
         try:             
             hrm_db =mysql.connector.connect(host=config.db_host,user=config.db_username,password=config.db_password,database=config.db_database,connect_timeout=10000 )#established connection between your database   
             
-            my_cursor = hrm_db.cursor(dictionary = True)
+            my_cursor = hrm_db.cursor(dictionary=True )
             
             query = "SELECT version()"
         
@@ -130,4 +148,43 @@ def create_user_profile_basic(user_l : BasicUserProfile)  :
     #         closeMysqlconnection(hrm_db, my_cursor)  
     #     return None    
 
-print(get_gender())
+def add_address(user_address)  :
+    try:     
+            
+            hrm_db =mysql.connector.connect(host=config.db_host,user=config.db_username,password=config.db_password,database=config.db_database)#established connection between your database   
+            my_cursor=hrm_db.cursor()                
+            my_cursor.callproc('sp_add_address', 
+                (user_address['email'], 
+                 user_address['street'], 
+                 user_address['city'], 
+                 user_address['apt_no'], 
+                 user_address['state'] , 
+                 user_address['pincode'],
+                ))       
+            hrm_db.commit()
+            return "Successfully added address"
+    except mysql.connector.Error as err:
+            return  "Error " + err.msg ;
+            
+    finally:
+            closeMysqlconnection(hrm_db, my_cursor)       
+
+def add_other_user_details(user)  :
+    try:     
+            
+            hrm_db =mysql.connector.connect(host=config.db_host,user=config.db_username,password=config.db_password,database=config.db_database)#established connection between your database   
+            my_cursor=hrm_db.cursor()                
+            my_cursor.callproc('sp_add_other_details', 
+                (user['email'], 
+                 user['department_id'], 
+                 user['marital_status_id'], 
+                 user['gender_id'],
+                 user['designation_id']                
+                ))       
+            hrm_db.commit()
+            return "Successfully added other details"
+    except mysql.connector.Error as err:
+            return  "Error " + err.msg ;
+            
+    finally:
+            closeMysqlconnection(hrm_db, my_cursor)             

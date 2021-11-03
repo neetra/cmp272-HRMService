@@ -1,6 +1,7 @@
 # Python standard libraries
 import json
 import os
+
 import config
 import mysqlprovider
 from jwt_helper import decode_jwt_token, encode_jwt_token
@@ -123,8 +124,9 @@ def load_user_from_request(request):
 
 @app.route("/current-user")
 def get_current_user():
-    user = mysqlprovider.get_user(current_user.get_id())
-    return jsonify(user), 200
+    # user = mysqlprovider.get_user(current_user.get_id())
+    user = mysqlprovider.get_user("netscho6@gmail.com")
+    return json.dumps(user), 200
 
 @app.route("/ping")
 def ping():    
@@ -136,7 +138,7 @@ def pingAuth():
     return "message"
 
 @app.route("/google_login")
-def goole_login():
+def google_login():
     # Find out what URL to hit for Google login
     google_provider_cfg = get_google_provider_cfg()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
@@ -155,10 +157,27 @@ def get_gender():
     gender = mysqlprovider.get_gender()
     return jsonify(gender), 200
 
-@app.route("/createbasicuserprofile", methods = ['POST'])
+@app.route("/create_basic_user_profile", methods = ['POST'])
 def create_basic_user_profile():
     json_data = request.get_json()  
     result  = mysqlprovider.create_user_profile_basic(json_data)
+
+    return jsonify(result), 200
+
+@app.route("/create_address", methods=['POST'])    
+def add_address():
+    json_data = request.get_json()  
+    result  = mysqlprovider.add_address(json_data)
+    if( result.__contains__("Error")):
+        return jsonify(result) , 400
+    return jsonify(result), 200
+
+@app.route("/other_details", methods=['POST'])    
+def add_other_details():
+    json_data = request.get_json()  
+    result  = mysqlprovider.add_other_user_details(json_data)
+    if( result.__contains__("Error")):
+        return jsonify(result) , 400
     return jsonify(result), 200
 
 @app.route("/")
