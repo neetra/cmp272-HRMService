@@ -1,0 +1,8 @@
+requests==2.21.0
+Flask==1.0.2
+Flask-Cors==3.0.10
+oauthlib==3.0.1
+pyOpenSSL==19.0.0
+Flask-Login==0.4.1
+PyJWT==2.3.0
+mysql.connector==2.2.9
