@@ -5,7 +5,6 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building..'
-                pip -V
             }
         }
         stage('Test') {
