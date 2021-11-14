@@ -6,3 +6,4 @@ pyOpenSSL==19.0.0
 Flask-Login==0.4.1
 PyJWT==2.3.0
 mysql.connector==2.2.9
+jsonpickle==2.0.0
