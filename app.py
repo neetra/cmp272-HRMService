@@ -132,6 +132,10 @@ def get_current_user():
 def ping():    
     return "Success", 200
 
+@app.route("/pingRDS")
+def pingRDS():    
+    version = mysqlprovider.get_sql_version()
+    return jsonify( {"version": version}), 200
 @app.route("/ping-auth")
 @login_required
 def pingAuth():    
@@ -195,4 +199,4 @@ def index():
         return '<a class="button" href="/google_login">Google Login</a>'
 
 if __name__ == "__main__":
-    app.run(ssl_context="adhoc")        
+    app.run(host="127.0.0.1", port = 5001)        
