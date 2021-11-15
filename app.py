@@ -24,7 +24,12 @@ GOOGLE_CLIENT_SECRET = config.GOOGLE_CLIENT_SECRET
 GOOGLE_DISCOVERY_URL = (
    config.GOOGLE_DISCOVERY_URL
 )
-
+def getBASEURL():
+    BASE_URL_APP = os.environ.get("aws_ec2_dns_name")
+    if(BASE_URL_APP == None):
+        BASE_URL_APP = request.base_url
+    return BASE_URL_APP        
+        
 # Flask app setup
 app = Flask(__name__)
 CORS(app)
@@ -56,7 +61,7 @@ def callback():
     token_url, headers, body = client.prepare_token_request(
         token_endpoint,
         authorization_response=request.url,
-        redirect_url=request.base_url,
+        redirect_url=getBASEURL(),
         code=code
     )
     token_response = requests.post(
@@ -146,12 +151,14 @@ def google_login():
     # Find out what URL to hit for Google login
     google_provider_cfg = get_google_provider_cfg()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
-
-    # Use library to construct the request for Google login and provide
+  
+    env = os.environ.get('C_P_S')
+     # Use library to construct the request for Google login and provide
     # scopes that let you retrieve user's profile from Google
+    
     request_uri = client.prepare_request_uri(
         authorization_endpoint,
-        redirect_uri=request.base_url + "/callback",
+        redirect_uri=getBASEURL() + "/callback",
         scope=["openid", "email", "profile"],
     )
     return redirect(request_uri)    
@@ -199,4 +206,5 @@ def index():
         return '<a class="button" href="/google_login">Google Login</a>'
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port = 5001)        
+    print(os.environ.get('C_P_S'))
+    app.run(port=5001, ssl_context='adhoc')      
