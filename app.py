@@ -6,6 +6,7 @@ import config
 import mysqlprovider
 from jwt_helper import decode_jwt_token, encode_jwt_token
 from user import User  
+import helper
 
 # Third-party libraries
 from flask import Flask, redirect, request, url_for, jsonify, json
@@ -28,8 +29,8 @@ def getBASEURL():
     BASE_URL_APP = os.environ.get("aws_ec2_dns_name")
     if(BASE_URL_APP == None):
         BASE_URL_APP = request.base_url
-    return BASE_URL_APP        
-        
+    return BASE_URL_APP      
+
 # Flask app setup
 app = Flask(__name__)
 CORS(app)
@@ -75,7 +76,7 @@ def callback():
     client.parse_request_body_response(json.dumps(token_response.json()))
     # token_temp  = token_response.json()
     # print(token_temp)
-        # Now that you have tokens (yay) let's find and hit the URL
+    # Now that you have tokens (yay) let's find and hit the URL
     # from Google that gives you the user's profile information,
     # including their Google profile image and email
     client.access_token
@@ -84,22 +85,62 @@ def callback():
     userinfo_response = requests.get(uri, headers=headers, data=body)
 
     print(userinfo_response)
-        # You want to make sure their email is verified.
+    # You want to make sure their email is verified.
     # The user authenticated with Google, authorized your
     # app, and now you've verified their email through Google!
     user_info = userinfo_response.json()
+    print("user_info" , user_info)
     if userinfo_response.json().get("email_verified"):       
+        unique_id = userinfo_response.json()["sub"]
         users_email = userinfo_response.json()["email"]
+        picture = userinfo_response.json()["picture"]
+        users_fname = userinfo_response.json()["given_name"]
+        users_lname = userinfo_response.json()["family_name"]
+        user = None
+        #// Get user from db
+        try:
+            user  = mysqlprovider.get_user(users_email)
+            #user = mysqlprovider.get_user("netscho6@gmail.com") #for testing
+        except TypeError as e:
+            print(e , users_email, "not found") 
+        finally:
+            print("try get_user end")
         
-        # // Get user from db
-        user  = mysqlprovider.get_user(users_email)
         if(user is not None):
-            user = User(user['email'],user['fn'],user['ln'], user['user_id'], user['role_id'])      
-            encoded_token = encode_jwt_token(user);
-      
+            user_t = User(user['email'],user['first_name'],user['last_name'], user['user_id']) #, user['role_id'])        
+            #print("user not none", user)
+            encoded_token = encode_jwt_token(user_t)
+            #print("token", encoded_token)           
             return jsonify({"access_token" : encoded_token }), 200   
         else:
-            return jsonify({"access_token" : None})            , 400
+            # # Doesn't exist? Add it to the database.
+            if (user is None):
+                # # Create a user in your db with the information provided
+                # # by Google
+                newuserjson = { "email" : str(users_email), 
+                                "first_name" : str(users_fname), 
+                                "last_name" : str(users_lname), 
+                                "password" : unique_id,
+                                "dob" : helper.get_current_timestamp_in_string(),
+                                "doj" : helper.get_current_timestamp_in_string(),
+                                "phone_number" : str("123-456-7890"),
+                                "photourl" : str(picture)
+                                }
+
+                user = mysqlprovider.create_user_profile_basic(newuserjson)
+            
+                # # Begin user session by logging the user in
+                # login_user(user)
+                user_t = User(user['email'],user['first_name'],user['last_name'], user['user_id']) #, user['role_id'])        
+                encoded_token = encode_jwt_token(user_t)
+                # print("token", encoded_token)           
+            
+                # # Send user back to homepage
+                # return redirect(url_for("index"))
+                return jsonify({"access_token" : encoded_token }), 200   
+            else:
+                return jsonify({"access_token" : None})            , 400
+    
     else:
         return "User email not available or not verified by Google.", 400    
     
@@ -129,8 +170,8 @@ def load_user_from_request(request):
 
 @app.route("/current-user")
 def get_current_user():
-    # user = mysqlprovider.get_user(current_user.get_id())
-    user = mysqlprovider.get_user("netscho6@gmail.com")
+    user = mysqlprovider.get_user(current_user.get_id())
+    #user = mysqlprovider.get_user("netscho6@gmail.com")
     return json.dumps(user), 200
 
 @app.route("/ping")
@@ -141,6 +182,7 @@ def ping():
 def pingRDS():    
     version = mysqlprovider.get_sql_version()
     return jsonify( {"version": version}), 200
+
 @app.route("/ping-auth")
 @login_required
 def pingAuth():    
@@ -151,11 +193,11 @@ def google_login():
     # Find out what URL to hit for Google login
     google_provider_cfg = get_google_provider_cfg()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
-  
+
     env = os.environ.get('C_P_S')
-     # Use library to construct the request for Google login and provide
+    # Use library to construct the request for Google login and provide
     # scopes that let you retrieve user's profile from Google
-    
+
     request_uri = client.prepare_request_uri(
         authorization_endpoint,
         redirect_uri=getBASEURL() + "/callback",
@@ -167,6 +209,21 @@ def google_login():
 def get_gender():
     gender = mysqlprovider.get_gender()
     return jsonify(gender), 200
+
+@app.route("/departments")
+def get_department():
+    department = mysqlprovider.get_department()
+    return jsonify(department), 200
+
+@app.route("/designations")
+def get_designation():
+    designation = mysqlprovider.get_designation()
+    return jsonify(designation), 200
+
+@app.route("/marital_status")
+def get_marital_status():
+    marital_status = mysqlprovider.get_marital_status()
+    return jsonify(marital_status), 200
 
 @app.route("/create_basic_user_profile", methods = ['POST'])
 def create_basic_user_profile():
