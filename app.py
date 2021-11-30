@@ -135,7 +135,7 @@ def callback():
             
                 # # Begin user session by logging the user in
                 # login_user(user)
-            user_t = User(user['email'],user['first_name'],user['last_name'], user['user_id']) #, user['role_id'])        
+            user_t = User(user['email'],user['first_name'],user['last_name'], user['user_id'], "Intern")      
             encoded_token = encode_jwt_token(user_t)
             return jsonify({"access_token": encoded_token}), 200
     else:
@@ -169,6 +169,18 @@ def load_user_from_request(request):
 def get_current_user():  
     dictObj = current_user.__dict__
     return jsonify(dictObj) , 200
+
+@app.route("/user_details")
+@login_required
+def get_user_details():
+    try:
+        emailId = current_user.__dict__["email"]
+        user = mysqlprovider.get_user(emailId)
+        return jsonify(user), 200
+    except (RuntimeError, NameError, ValueError)  as error:
+        logging.error(error)
+        return jsonify({'user', None}), 409
+
 
 @app.route("/ping")
 def ping():    
