@@ -29,7 +29,6 @@ FROM
 	Marital_status ms on cp.M_id = ms.M_id
     WHERE
     c.User_id = userid;
-
    
 END$$
 

@@ -1,7 +1,7 @@
 # Python standard libraries
 import json
 import os
-
+import logging;
 import config
 import mysqlprovider
 from jwt_helper import decode_jwt_token, encode_jwt_token
@@ -25,12 +25,7 @@ GOOGLE_CLIENT_SECRET = config.GOOGLE_CLIENT_SECRET
 GOOGLE_DISCOVERY_URL = (
    config.GOOGLE_DISCOVERY_URL
 )
-def getBASEURL():
-    BASE_URL_APP = os.environ.get("aws_ec2_dns_name")
-    if(BASE_URL_APP == None):
-        BASE_URL_APP = request.base_url
-    return BASE_URL_APP      
-
+        
 # Flask app setup
 app = Flask(__name__)
 CORS(app)
@@ -48,6 +43,24 @@ client = WebApplicationClient(GOOGLE_CLIENT_ID)
 def get_google_provider_cfg():
     return requests.get(GOOGLE_DISCOVERY_URL).json()
 
+@app.route("/get_token") 
+def get_token():
+    try:
+        logging.info("Inside get token")
+        emailId = request.args.get('emailId')
+        user = mysqlprovider.get_user(emailId)
+        if (user is not None):
+            user = User(user['email'], user['first_name'], user['last_name'], user['user_id'], user['designation'])
+            encoded_token = encode_jwt_token(user);
+
+            return jsonify({"access_token": encoded_token}), 200
+        else:
+            return jsonify({"access_token": None}), 400
+    except  (RuntimeError, TypeError, NameError) as e:
+        logging.error(e.error)
+        return jsonify({"access_token" :  None}), 409
+
+
 @app.route("/google_login/callback")
 def callback():
     # Get authorization code Google sent back to you
@@ -57,22 +70,24 @@ def callback():
     # things on behalf of a user
     google_provider_cfg = get_google_provider_cfg()
     token_endpoint = google_provider_cfg["token_endpoint"]
-        
+
     # Prepare and send a request to get tokens! Yay tokens!
     token_url, headers, body = client.prepare_token_request(
         token_endpoint,
         authorization_response=request.url,
-        redirect_url=getBASEURL(),
+        redirect_url=request.base_url,
         code=code
     )
+
     token_response = requests.post(
         token_url,
         headers=headers,
         data=body,
-        auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
+        auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET)
     )
 
     # Parse the tokens!
+    token = token_response.json()
     client.parse_request_body_response(json.dumps(token_response.json()))
     # token_temp  = token_response.json()
     # print(token_temp)
@@ -89,35 +104,24 @@ def callback():
     # The user authenticated with Google, authorized your
     # app, and now you've verified their email through Google!
     user_info = userinfo_response.json()
-    print("user_info" , user_info)
-    if userinfo_response.json().get("email_verified"):       
-        unique_id = userinfo_response.json()["sub"]
+    if userinfo_response.json().get("email_verified"):
         users_email = userinfo_response.json()["email"]
-        picture = userinfo_response.json()["picture"]
-        users_fname = userinfo_response.json()["given_name"]
-        users_lname = userinfo_response.json()["family_name"]
-        user = None
-        #// Get user from db
-        try:
-            user  = mysqlprovider.get_user(users_email)
-            #user = mysqlprovider.get_user("netscho6@gmail.com") #for testing
-        except TypeError as e:
-            print(e , users_email, "not found") 
-        finally:
-            print("try get_user end")
-        
-        if(user is not None):
-            user_t = User(user['email'],user['first_name'],user['last_name'], user['user_id']) #, user['role_id'])        
-            #print("user not none", user)
-            encoded_token = encode_jwt_token(user_t)
-            #print("token", encoded_token)           
-            return jsonify({"access_token" : encoded_token }), 200   
+
+        # // Get user from db
+        user = mysqlprovider.get_user(users_email)
+        if (user is not None):
+            user = User(user['email'], user['first_name'], user['last_name'], user['user_id'], user['designation'])
+            encoded_token = encode_jwt_token(user);
+
+            return jsonify({"access_token": encoded_token}), 200
         else:
-            # # Doesn't exist? Add it to the database.
-            if (user is None):
-                # # Create a user in your db with the information provided
-                # # by Google
-                newuserjson = { "email" : str(users_email), 
+            unique_id = userinfo_response.json()["sub"]
+            users_email = userinfo_response.json()["email"]
+            picture = userinfo_response.json()["picture"]
+            users_fname = userinfo_response.json()["given_name"]
+            users_lname = userinfo_response.json()["family_name"]	
+
+            newuserjson = { "email" : str(users_email), 
                                 "first_name" : str(users_fname), 
                                 "last_name" : str(users_lname), 
                                 "password" : unique_id,
@@ -127,23 +131,16 @@ def callback():
                                 "photourl" : str(picture)
                                 }
 
-                user = mysqlprovider.create_user_profile_basic(newuserjson)
+            user = mysqlprovider.create_user_profile_basic(newuserjson)
             
                 # # Begin user session by logging the user in
                 # login_user(user)
-                user_t = User(user['email'],user['first_name'],user['last_name'], user['user_id']) #, user['role_id'])        
-                encoded_token = encode_jwt_token(user_t)
-                # print("token", encoded_token)           
-            
-                # # Send user back to homepage
-                # return redirect(url_for("index"))
-                return jsonify({"access_token" : encoded_token }), 200   
-            else:
-                return jsonify({"access_token" : None})            , 400
-    
+            user_t = User(user['email'],user['first_name'],user['last_name'], user['user_id'], "Intern")      
+            encoded_token = encode_jwt_token(user_t)
+            return jsonify({"access_token": encoded_token}), 200
     else:
-        return "User email not available or not verified by Google.", 400    
-    
+        return "User email not available or not verified by Google.", 400
+
 
 def get_jwt_token(request):
     authorization_header_value = request.headers.get('Authorization')
@@ -158,21 +155,32 @@ def load_user_from_request(request):
     try:
             jwt_token = get_jwt_token(request)
             if(jwt_token != None):
-                payload = decode_jwt_token(jwt_token)
-           
+                payload = decode_jwt_token(jwt_token)           
                 # Get user from db
-                user = mysqlprovider.get_user(payload["email"])
-                user = User(user['email'],user['fn'],user['ln'], user['user_id'], user['role_id']) 
+                #user = mysqlprovider.get_user(payload["email"])
+                user =User(payload['email'], payload['fn'], payload['ln'], payload['user_id'], payload['designation'])
                 return user                  
     except os.error as e:        
         return None
     return None    
 
 @app.route("/current-user")
-def get_current_user():
-    user = mysqlprovider.get_user(current_user.get_id())
-    #user = mysqlprovider.get_user("netscho6@gmail.com")
-    return json.dumps(user), 200
+@login_required
+def get_current_user():  
+    dictObj = current_user.__dict__
+    return jsonify(dictObj) , 200
+
+@app.route("/user_details")
+@login_required
+def get_user_details():
+    try:
+        emailId = current_user.__dict__["email"]
+        user = mysqlprovider.get_user(emailId)
+        return jsonify(user), 200
+    except (RuntimeError, NameError, ValueError)  as error:
+        logging.error(error)
+        return jsonify({'user', None}), 409
+
 
 @app.route("/ping")
 def ping():    
@@ -194,16 +202,14 @@ def google_login():
     google_provider_cfg = get_google_provider_cfg()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
 
-    env = os.environ.get('C_P_S')
     # Use library to construct the request for Google login and provide
     # scopes that let you retrieve user's profile from Google
-
     request_uri = client.prepare_request_uri(
         authorization_endpoint,
-        redirect_uri=getBASEURL() + "/callback",
+        redirect_uri=request.base_url + "/callback",
         scope=["openid", "email", "profile"],
     )
-    return redirect(request_uri)    
+    return redirect(request_uri)
 
 @app.route("/genders")
 def get_gender():
@@ -248,20 +254,6 @@ def add_other_details():
         return jsonify(result) , 400
     return jsonify(result), 200
 
-@app.route("/")
-def index():
-    if current_user != None and  current_user.is_authenticated:
-        return (
-            "<p>Hello, {}! You're logged in! Email: {}</p>"
-            "<div><p>Google Profile Picture:</p>"
-            '<img src="{}" alt="Google profile pic"></img></div>'
-            '<a class="button" href="/logout">Logout</a>'.format(
-                current_user.name, current_user.email, current_user.profile_pic
-            )
-        )
-    else:
-        return '<a class="button" href="/google_login">Google Login</a>'
-
-if __name__ == "__main__":
-    print(os.environ.get('C_P_S'))
+if __name__ == "__main__":   
     app.run(port=5001, ssl_context='adhoc')      
+
