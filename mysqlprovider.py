@@ -23,10 +23,14 @@ def get_user(email_id)  :
             my_cursor.callproc('sp_get_user_details', (email_id,))       
   
             results = my_cursor.stored_results()
+            r =None
             for result in results:
                 r =  result.fetchone()
-            user_d = UserDetails(r)
-            return user_d;                
+            if(r is not None):
+                user_d = UserDetails(r)
+                return user_d;  
+            else:
+                return None                              
     except mysql.connector.Error as err:
             print (err)  
             return "Error "      + err.msg

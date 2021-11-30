@@ -7,9 +7,10 @@ import config
 def encode_jwt_token(user : User):
     payload = {
         "email" : user.email,
-        "role" : user.role_id,
+        "designation" : user.designation,
         "fn" : user.fn,
         "ln" : user.ln,
+        "user_id" : user.user_id,
         "project" : config.PROJECT_NAME
     }
     encoded_jwt = jwt.encode ({"some": payload}, "secret", algorithm="HS256")
