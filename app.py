@@ -111,7 +111,7 @@ def callback():
         user = mysqlprovider.get_user(users_email)
         if (user is not None):
             user = User(user['email'], user['first_name'], user['last_name'], user['user_id'], user['designation'])
-            encoded_token = encode_jwt_token(user);
+            encoded_token = encode_jwt_token(user)
 
             return jsonify({"access_token": encoded_token}), 200
         else:
@@ -168,6 +168,14 @@ def load_user_from_request(request):
 def get_all_users():
     allUsers = mysqlprovider.get_users()
     return jsonify(allUsers), 200
+
+
+@app.route("/delete-profile", methods=['POST']) 
+def del_user():
+    json_data = request.get_json()  
+    emailId = json_data.__dict__["email"]
+    result = mysqlprovider.del_user(emailId) #result returned as rowcount
+    return jsonify({"deleted record(s)", result}), 200
 
 @app.route("/current-user")
 @login_required
