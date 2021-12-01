@@ -15,6 +15,25 @@ def connect_to_db():
     hrm_db=mysql.connector.connect(host=config.db_host,user=config.db_username,password=config.db_password,database=config.db_database )#established connection between your database  
     return hrm_db
 
+def get_users():
+    try:                 
+            hrm_db =mysql.connector.connect(host=config.db_host,user=config.db_username,password=config.db_password,database=config.db_database)#established connection between your database   
+            my_cursor =  hrm_db.cursor(dictionary=True )
+         
+            query = "SELECT User_id, First_name, Last_name, email FROM Colleagues"        
+            
+            my_cursor.execute(query)
+            
+            results = my_cursor.fetchall()
+            return results;
+
+    except mysql.connector.Error as err:
+            print (err)  
+            return "Error "      + err.msg
+            
+    finally:
+            closeMysqlconnection(hrm_db, my_cursor)  
+    return None    
 def get_user(email_id)  :  
     try:                 
             hrm_db =mysql.connector.connect(host=config.db_host,user=config.db_username,password=config.db_password,database=config.db_database)#established connection between your database   

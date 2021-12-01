@@ -1,4 +1,3 @@
-import jsonpickle;
 class UserDetails(dict):
     def __init__(self, r):
         self.user_id = r[0]
