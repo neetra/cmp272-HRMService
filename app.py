@@ -164,6 +164,11 @@ def load_user_from_request(request):
         return None
     return None    
 
+@app.route("/users")
+def get_all_users():
+    allUsers = mysqlprovider.get_users()
+    return jsonify(allUsers), 200
+
 @app.route("/current-user")
 @login_required
 def get_current_user():  
