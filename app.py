@@ -170,15 +170,15 @@ def get_all_users():
     return jsonify(allUsers), 200
 
 
-@app.route("/delete-profile", methods=['POST']) 
+@app.route("/delete-profile", methods=['DELETE']) 
 def del_user():
     try:
         logging.info("Going to delete user profile")
         emailId = request.args.get('emailId')
         result = mysqlprovider.del_user(emailId) #result returned as rowcount
-        return jsonify({"deleted record(s)", result}), 200
+        return jsonify({"deleted record(s)" : str(result)}), 200
     except  (RuntimeError, TypeError, NameError) as e:
-        logging.error(e.error)
+        logging.error(e)
         return jsonify({"deleted record(s)" :  None}), 409
 
 @app.route("/current-user")
