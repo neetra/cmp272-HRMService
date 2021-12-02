@@ -231,25 +231,34 @@ def create_user_profile_basic(user_l : BasicUserProfile)  :
             closeMysqlconnection(hrm_db, my_cursor)  
     return None    
 
-    # def check_user(, username, password):
-    #     try: 
-    #         hrm_db =mysql.connector.connect(host=config.db_host,user=config.db_username,password=config.db_password,database=config.db_database)#established connection between your database   
-    #         my_cursor = hrm_db.cursor(dictionary = True)
-    #         query = "SELECT u.user_id, u.password, u.email, u.first_name, u.last_name, ur.role_id FROM users u LEFT JOIN users_role ur ON u.user_id = ur.user_id  WHERE email = %s"
-        
-    #         tuple1 = [username]
-    #         my_cursor.execute(query, tuple1)
-    #         results = my_cursor.fetchone()          
-    #         if(check_password_hash(results['password'], password)):
-    #             return results
-    #         else:
-    #             return None                
-    #     except mysql.connector.Error as err:
-    #         print (err)
-    #     finally:
-    #         closeMysqlconnection(hrm_db, my_cursor)         
-        
-    #     return None
+def check_user(username, password):
+  try:                 
+            hrm_db =mysql.connector.connect(host=config.db_host,user=config.db_username,password=config.db_password,database=config.db_database)#established connection between your database   
+            my_cursor =  hrm_db.cursor(dictionary=True )
+         
+            my_cursor.callproc('sp_get_user_details', (username,))       
+  
+            results = my_cursor.stored_results()
+            r =None
+            for result in results:
+                
+                r =  result.fetchone()
+            if(r is not None):
+                if(check_password_hash(r[12], password)):
+                    user_d = UserDetails(r)
+                    return user_d;  
+                else:
+                    return None                    
+            else:
+                return None                              
+  except mysql.connector.Error as err:
+            print (err)  
+            return "Error "      + err.msg
+            
+  finally:
+            closeMysqlconnection(hrm_db, my_cursor)  
+  return None    
+
 
     # def create_user(, user_l):
     #     try:      

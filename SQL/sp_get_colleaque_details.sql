@@ -13,7 +13,7 @@ BEGIN
     SELECT User_id into userid FROM Colleagues where Email = emailid LIMIT 1; 
 
 	SELECT 
-    c.User_id,  c.First_Name, c.Last_name, c.Email, c.Dob, c.DOJ, c.Contact_no, c.Photo_url, des.Des_Name , dep.Dep_name, g.Gender_name, ms.M_name
+    c.User_id,  c.First_Name, c.Last_name, c.Email, c.Dob, c.DOJ, c.Contact_no, c.Photo_url, des.Des_Name , dep.Dep_name, g.Gender_name, ms.M_name, c.Password
  
 FROM
     Colleagues c

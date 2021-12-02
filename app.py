@@ -43,6 +43,25 @@ client = WebApplicationClient(GOOGLE_CLIENT_ID)
 def get_google_provider_cfg():
     return requests.get(GOOGLE_DISCOVERY_URL).json()
 
+
+@app.route("/login") 
+def verify_user_login():
+    try:
+        logging.info("Inside verify user")
+        json_data = request.get_json()  
+        user = mysqlprovider.check_user(json_data["username"], json_data["password"])
+        if (user is not None):
+            user = User(user['email'], user['first_name'], user['last_name'], user['user_id'], user['designation'])
+            encoded_token = encode_jwt_token(user)
+
+            return jsonify({"access_token": encoded_token}), 200
+        else:
+            return jsonify({"access_token": None}), 400
+    except  (RuntimeError, TypeError, NameError) as e:
+        logging.error(e.error)
+        return jsonify({"access_token" :  None}), 409
+
+
 @app.route("/get_token") 
 def get_token():
     try:
