@@ -1,0 +1,440 @@
+{
+	"info": {
+		"_postman_id": "afae399d-c356-4bb4-a6a1-dc40430eb7d3",
+		"name": "cmpe272-HRM",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Token",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/get_token?emailId=netscho6@gmail.com",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"get_token"
+					],
+					"query": [
+						{
+							"key": "emailId",
+							"value": "netscho6@gmail.com"
+						}
+					]
+				},
+				"description": "Get current user\n\nMethod: GET\n\nReturn: user's access token, if login successfully."
+			},
+			"response": []
+		},
+		{
+			"name": "Get current user",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/current-user",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"current-user"
+					]
+				},
+				"description": "Get current user\n\nMethod: GET\n\nReturn: user's access token, if login successfully."
+			},
+			"response": []
+		},
+		{
+			"name": "Ping",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/ping",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"ping"
+					]
+				},
+				"description": "Ping the webserver\n\nMethod: GET\n\nReturn: Success, if webserver is active"
+			},
+			"response": []
+		},
+		{
+			"name": "Ping database server",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/pingRDS",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"pingRDS"
+					]
+				},
+				"description": "Ping database server host at AWS RDS\n\nMethod: GET\n\nReturn: JSON\n\n```\n{\n  \"version\": \"8.0.23\"\n}\n```"
+			},
+			"response": []
+		},
+		{
+			"name": "ping authenticate",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/ping-auth",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"ping-auth"
+					]
+				},
+				"description": "Test if authenticate works\n\nMethod: GET\n\nReturn: user's access token, if user login successfully"
+			},
+			"response": []
+		},
+		{
+			"name": "Get User Details",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/user_details",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"user_details"
+					]
+				},
+				"description": "Test if authenticate works\n\nMethod: GET\n\nReturn: user's access token, if user login successfully"
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Users",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/users",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"users"
+					]
+				},
+				"description": "Test if authenticate works\n\nMethod: GET\n\nReturn: user's access token, if user login successfully"
+			},
+			"response": []
+		},
+		{
+			"name": "Create basic user profile",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\r\n    \"email\" : \"netranitin.amrale@sjsu.edu\",\r\n    \"first_name\":\"Netra\",\r\n    \"last_name\":\"Amrale\",\r\n     \"dob\": \"07/11/1995\",\r\n    \"doj\": \"07/11/1995\",\r\n        \"phone_number\": \"65545993033\",        \r\n        \"password\" : \"test@123\",\r\n        \"photourl\": \"\"\r\n\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/create_basic_user_profile",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"create_basic_user_profile"
+					]
+				},
+				"description": "Create user basic profile\n\nMethod: POST\n\nRequire: User's profile JSON data\n\nReturn: status JSON object"
+			},
+			"response": []
+		},
+		{
+			"name": "Create_add other details",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\r\n    \"email\" : \"netranitin.amrale@sjsu.edu\",\r\n    \"department_id\":6,\r\n    \"marital_status_id\":4,\r\n     \"gender_id\": 2,\r\n    \"designation_id\": 13\r\n      \r\n\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/other_details",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"other_details"
+					]
+				},
+				"description": "Create or Add other user's details\n\nMethod: POST\n\nRequire: User's other details JSON data\n\nReturn: status JSON object"
+			},
+			"response": []
+		},
+		{
+			"name": "Create_ Add Address for user Copy",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\r\n    \"email\" : \"netranitin.amrale@sjsu.edu\",\r\n    \"street\":\"99 Vista Montana\",\r\n    \"city\":\"San Jose\",\r\n     \"apt_no\": \"3277\",\r\n    \"state\": \"California\",\r\n     \"pincode\": \"95134\"\r\n\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/create_address",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"create_address"
+					]
+				},
+				"description": "Create or Add address for user\n\nMethod: POST\n\nRequire: address JSON data\n\nReturn: status JSON object"
+			},
+			"response": []
+		},
+		{
+			"name": "Custom Login",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\r\n    \"username\" : \"amrale.netra+2@gmail.com\",    \r\n    \"password\" : \"test@123\"\r\n   \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/login",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"login"
+					]
+				},
+				"description": "N/A for this moment"
+			},
+			"response": []
+		},
+		{
+			"name": "Gender",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/genders",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"genders"
+					]
+				},
+				"description": "Get list of Genders\n\nMethod: GET\n\nReturn: JSON\n\n```\n[\n  {\n    \"Gender_id\": 1, \n    \"Gender_name\": \"Male\"\n  }, \n  {\n    \"Gender_id\": 2, \n    \"Gender_name\": \"Female\"\n  }, \n  {\n    \"Gender_id\": 3, \n    \"Gender_name\": \"Other\"\n  }, \n  {\n    \"Gender_id\": 4, \n    \"Gender_name\": \"Do not want to specify\"\n  }\n]\n```"
+			},
+			"response": []
+		},
+		{
+			"name": "departments",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/departments",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"departments"
+					]
+				},
+				"description": "Get list of Departments\n\nMethod: GET\n\nReturn: JSON\n\n```\n[\n  {\n    \"Dep_id\": 1, \n    \"Dep_name\": \"Engineering\"\n  }, \n  {\n    \"Dep_id\": 2, \n    \"Dep_name\": \"Engineering\"\n  }, \n  {\n    \"Dep_id\": 3, \n    \"Dep_name\": \"Onboarding\"\n  }, \n  {\n    \"Dep_id\": 4, \n    \"Dep_name\": \"Marketing\"\n  }, \n  {\n    \"Dep_id\": 5, \n    \"Dep_name\": \"Sales\"\n  }, \n  {\n    \"Dep_id\": 6, \n    \"Dep_name\": \"CloudOps\"\n  }, \n  {\n    \"Dep_id\": 7, \n    \"Dep_name\": \"Finance\"\n  }, \n  {\n    \"Dep_id\": 8, \n    \"Dep_name\": \"Quality Assurance\"\n  }\n]\n\n```"
+			},
+			"response": []
+		},
+		{
+			"name": "designations",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/designations",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"designations"
+					]
+				},
+				"description": "Get list of Designations\n\nMethod: GET\n\nReturn: JSON\n\n```\n[\n  {\n    \"Des_id\": 1, \n    \"Des_name\": \"CIO\"\n  }, \n  {\n    \"Des_id\": 2, \n    \"Des_name\": \"CTO\"\n  }, \n  {\n    \"Des_id\": 3, \n    \"Des_name\": \"Software Quality Analyst\"\n  }, \n  {\n    \"Des_id\": 4, \n    \"Des_name\": \"Software Engineer\"\n  }, \n  {\n    \"Des_id\": 5, \n    \"Des_name\": \"Help Desk Specialist\"\n  }, \n  {\n    \"Des_id\": 6, \n    \"Des_name\": \"Cloud Operation engineer\"\n  }, \n  {\n    \"Des_id\": 7, \n    \"Des_name\": \"Intern\"\n  }, \n  {\n    \"Des_id\": 8, \n    \"Des_name\": \"Senior Software Engineer\"\n  }, \n  {\n    \"Des_id\": 9, \n    \"Des_name\": \"Financial Analyst\"\n  }, \n  {\n    \"Des_id\": 10, \n    \"Des_name\": \"Financial Manager\"\n  }, \n  {\n    \"Des_id\": 11, \n    \"Des_name\": \"Senior Software Engineer\"\n  }, \n  {\n    \"Des_id\": 12, \n    \"Des_name\": \"HR Manager\"\n  }, \n  {\n    \"Des_id\": 13, \n    \"Des_name\": \"HR Analyst\"\n  }, \n  {\n    \"Des_id\": 14, \n    \"Des_name\": \"HR Coordinator\"\n  }\n]\n```"
+			},
+			"response": []
+		},
+		{
+			"name": "marital_status",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/marital_status",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"marital_status"
+					]
+				},
+				"description": "Get list of Marital Status\n\nMethod: GET\n\nReturn: JSON\n\n```\n[\n  {\n    \"M_id\": 3, \n    \"M_name\": \"Married\"\n  }, \n  {\n    \"M_id\": 4, \n    \"M_name\": \"Single\"\n  }, \n  {\n    \"M_id\": 5, \n    \"M_name\": \"Divorced\"\n  }, \n  {\n    \"M_id\": 6, \n    \"M_name\": \"Widowed \"\n  }\n]\n```"
+			},
+			"response": []
+		},
+		{
+			"name": "delete-profile",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/delete-profile?emailId=email",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"delete-profile"
+					],
+					"query": [
+						{
+							"key": "emailId",
+							"value": "email"
+						}
+					]
+				},
+				"description": "delete-profile, delete user's profile from DB\nmethod: POST\nrequire: user's JSON contains email\nreturn: delete rows count status\n\nSuccessful: (status: 200)\n{\n  \"deleted record(s)\", 1\n}\n\nUnsuccessful: (status: 409, for exception)\n{\n  \"deleted record(s)\", None\n}"
+			},
+			"response": []
+		}
+	]
+}

@@ -1,4 +1,25 @@
-# cmp272-HRMService
+# HRMService
+- Rest API performing CRUD operations on employees database
+- Prof Andrew Bond
+- Course: CMPE 272, Enterprise Software Platforms
+- API requires JWT authentication
+
+# Contributors
+- Netra Amrale : [amrale.netra@gmail.com](amrale.netra@gmail.com)
+- Zi Shun Yang : [zishun.yang@sjsu.edu](zishun.yang@sjsu.edu)
+
+# Prerequisites
+|Technology|Version|
+--|--|
+|Python|3.8|
+|MySQL|8.0.23|
+|AWS Resources| EC2, VPC, Security Group|
+|CI/CD|Jenkins|
+
+# Database Design
+![image](images/databsedesign.PNG)
+# How to Use
+Demo is [here](https://drive.google.com/file/d/1SggLWufLAdOOjWkrymPyvLBZN6SK3kFS/view?usp=sharing)
 
 # Postman Collection:
 - Workspace :https://www.postman.com/red-water-456173/workspace/cmp-272-hrm/collection/2280968-afae399d-c356-4bb4-a6a1-dc40430eb7d3?ctx=documentation
