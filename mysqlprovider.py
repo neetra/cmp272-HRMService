@@ -25,7 +25,7 @@ def get_users():
             my_cursor.execute(query)
             
             results = my_cursor.fetchall()
-            return results;
+            return results
 
     except mysql.connector.Error as err:
             print (err)  
@@ -34,6 +34,7 @@ def get_users():
     finally:
             closeMysqlconnection(hrm_db, my_cursor)  
     return None    
+
 def get_user(email_id)  :  
     try:                 
             hrm_db =mysql.connector.connect(host=config.db_host,user=config.db_username,password=config.db_password,database=config.db_database)#established connection between your database   
@@ -57,6 +58,38 @@ def get_user(email_id)  :
     finally:
             closeMysqlconnection(hrm_db, my_cursor)  
     return None    
+
+
+def del_user(email_id):
+    try:                 
+            hrm_db =mysql.connector.connect(host=config.db_host,user=config.db_username,password=config.db_password,database=config.db_database)#established connection between your database   
+            my_cursor =  hrm_db.cursor(dictionary=True )
+         
+            query = "SELECT User_id FROM Colleagues WHERE email=\'" + email_id + "\'"
+            my_cursor.execute(query)
+            sel_user = my_cursor.fetchone()
+
+            del_id = sel_user["User_id"]
+            query1 = "DELETE FROM Colleagues_mappings WHERE User_id=" + str(del_id)
+            query2 = "DELETE FROM Colleagues WHERE User_id=" + str(del_id)
+            print(query1)
+            print(query2)
+            my_cursor.execute(query1)
+            my_cursor.execute(query2)
+            hrm_db.commit()
+
+            result = my_cursor.rowcount
+
+            return result
+
+    except mysql.connector.Error as err:
+            print (err)  
+            return "Error "      + err.msg
+            
+    finally:
+            closeMysqlconnection(hrm_db, my_cursor)  
+    return None    
+
 
 def get_sql_version():
         try:             
