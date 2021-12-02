@@ -1,7 +1,7 @@
 # Python standard libraries
 import json
 import os
-import logging;
+import logging
 import config
 import mysqlprovider
 from jwt_helper import decode_jwt_token, encode_jwt_token
@@ -51,7 +51,7 @@ def get_token():
         user = mysqlprovider.get_user(emailId)
         if (user is not None):
             user = User(user['email'], user['first_name'], user['last_name'], user['user_id'], user['designation'])
-            encoded_token = encode_jwt_token(user);
+            encoded_token = encode_jwt_token(user)
 
             return jsonify({"access_token": encoded_token}), 200
         else:
@@ -172,10 +172,14 @@ def get_all_users():
 
 @app.route("/delete-profile", methods=['POST']) 
 def del_user():
-    json_data = request.get_json()  
-    emailId = json_data.__dict__["email"]
-    result = mysqlprovider.del_user(emailId) #result returned as rowcount
-    return jsonify({"deleted record(s)", result}), 200
+    try:
+        logging.info("Going to delete user profile")
+        emailId = request.args.get('emailId')
+        result = mysqlprovider.del_user(emailId) #result returned as rowcount
+        return jsonify({"deleted record(s)", result}), 200
+    except  (RuntimeError, TypeError, NameError) as e:
+        logging.error(e.error)
+        return jsonify({"deleted record(s)" :  None}), 409
 
 @app.route("/current-user")
 @login_required
